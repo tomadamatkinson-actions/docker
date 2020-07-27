@@ -1,0 +1,34 @@
+name: "Build Docker"
+
+on: [pull_request]
+
+jobs:
+    should-build:
+        runs-on: ubuntu-latest
+        outputs:
+            should-build: ${{ steps.outputs.build }}
+
+        steps:
+        - uses: actions/checkout@v2
+          with:
+            fetch-depth: 0
+        - run: |
+            git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+        - name: "Should Build"
+          run:  |
+            if [ grep -q ".github/docker" $( git diff --name-status master ) ]
+                then
+                    echo "::set-outputs name=build::1"
+                else
+                    echo "::set-outputs name=build::0"
+            fi
+            exit 0
+           
+    build-image:
+        runs-on: ubuntu-latest
+        needs: should-build
+        steps:
+            - name: "Build"
+              if: ${{ needs.should-build.outputs.build }}
+              run: echo "Build image"
+              
