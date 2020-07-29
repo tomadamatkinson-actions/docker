@@ -13,10 +13,10 @@ jobs:
           with:
             fetch-depth: 0
         - run: |
-            git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+            git fetch origin master:master
         - name: "Should Build"
           run:  |
-            if [ grep -q ".github/docker" <<< $( git diff --name-status orign/master HEAD ) ]
+            if [[ grep -q ".github/docker" << $( git diff --name-status master HEAD ) ]]
                 then
                     echo "::set-outputs name=build::1"
                 else
